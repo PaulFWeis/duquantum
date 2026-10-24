@@ -1,0 +1,4 @@
+*.ipynb
+cirqbasics.py
+cirq-env/
+
