@@ -17,6 +17,32 @@ def create_ghz_state(qubits: set[cirq.GridQubit], part: Literal['a','b','c']) ->
     Returns:
         A circuit that creates a GHZ state on these qubits.
     """
+def prob1c(qubits):
+    circuit = cirq.Circuit(cirq.H(qubits[0]))
+    row=len(set(q.col for q in qubits))
+    col=len(set(q.row for q in qubits))
+    measured = []
+
+    for r in range(row):
+        for c in range(col):
+            if r==0 or c==0:
+                measured.append(cirq.GridQubit(r,c))
+    q0=measured[0]
+    circuit.append(cirq.Moment(
+        cirq.measure(q0, key='control'),
+        cirq.measure(*measured[1:], key='others')
+    ))
+    for q in qubits:
+        if q!=q0:
+            circuit.append(cirq.X(q).with_classical_controls('control'))
+
+    circuit.append(cirq.measure(*qubits, key="result"))
+    print(circuit)
+
+
+    simulator = cirq.Simulator()
+    results = simulator.run(circuit, repetitions=1000)
+    print("Counts:", results.histogram(key="result"))
 
 def check_ghz_statevector(
         circuit: cirq.Circuit,
